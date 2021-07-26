@@ -3,6 +3,7 @@ import 'package:carrinho_de_compras/modules/cart/cart_page.dart';
 import 'package:carrinho_de_compras/modules/cart/cart_item.dart';
 import 'package:carrinho_de_compras/modules/home/home_controller.dart';
 import 'package:carrinho_de_compras/shared/models/product_model.dart';
+import 'package:carrinho_de_compras/shared/widgets/appbar_cart_widget.dart';
 import 'package:carrinho_de_compras/shared/widgets/product_tile_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:carrinho_de_compras/shared/utils/extensions.dart';
@@ -41,37 +42,12 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: Text("Shopping page"),
         actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CartPage(
-                      controller: cartController,
-                    ),
-                  ),
-                );
-              },
-              icon: Stack(
-                children: [
-                  Icon(
-                    Icons.shopping_cart,
-                    size: 30,
-                  ),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: CircleAvatar(
-                      radius: 9,
-                      child: Observer(
-                        builder: (_) => Text(
-                          cartController.itemsCount.toString(),
-                          style: TextStyle(fontSize: 8),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ))
+          Observer(
+            builder: (_) => AppBarCartWidget(
+              controller: cartController,
+              itemCounter: cartController.itemsCount.toString(),
+            ),
+          ),
         ],
       ),
       body: Observer(
@@ -82,23 +58,20 @@ class _HomePageState extends State<HomePage> {
             );
           } else if (controller.appStatus == AppStatus.success) {
             return ListView.builder(
-                itemCount: controller.products.length,
-                itemBuilder: (_, index) {
-                  final product = controller.products[index];
-                  return ProductTile(
-                    title: Text(controller.products[index].name),
-                    price: Text(
-                      controller.products[index].price.reais(),
-                    ),
-                    value: cartController.contains(product) ? true : false,
-                    onChanged: (value) {
-                      setState(() {
-                        cartController.toggleCart();
-                      });
-                      updateCart(product);
-                    },
-                  );
-                });
+              itemCount: controller.products.length,
+              itemBuilder: (_, index) {
+                final product = controller.products[index];
+                return ProductTile(
+                  title: Text(controller.products[index].name),
+                  price: Text(controller.products[index].price.reais()),
+                  value: cartController.contains(product) ? true : false,
+                  onChanged: (value) {
+                    setState(() {});
+                    updateCart(product);
+                  },
+                );
+              },
+            );
           } else if (controller.appStatus == AppStatus.empty) {
             return EmptyState();
           } else if (controller.appStatus == AppStatus.error) {

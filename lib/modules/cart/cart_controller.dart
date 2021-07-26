@@ -11,9 +11,6 @@ abstract class _CartControllerBase with Store {
   @observable
   ObservableList<CartItem> list = <CartItem>[].asObservable();
 
-  @observable
-  bool inCart = false;
-
   @computed
   int get itemsCount => list.length;
 
@@ -35,11 +32,6 @@ abstract class _CartControllerBase with Store {
   @action
   void removeProduct(CartItem product) {
     list.remove(product);
-  }
-
-  @action
-  void toggleCart() {
-    inCart = !inCart;
   }
 
   @action
