@@ -1,9 +1,12 @@
 import 'package:carrinho_de_compras/modules/cart/cart_controller.dart';
 import 'package:carrinho_de_compras/modules/cart/cart_page.dart';
+import 'package:carrinho_de_compras/modules/cart/cart_item.dart';
 import 'package:carrinho_de_compras/modules/home/home_controller.dart';
 import 'package:carrinho_de_compras/shared/models/product_model.dart';
-import 'package:carrinho_de_compras/state_builder.dart';
+import 'package:carrinho_de_compras/shared/widgets/product_tile_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:carrinho_de_compras/shared/utils/extensions.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 
 class HomePage extends StatefulWidget {
   HomePage({Key? key}) : super(key: key);
@@ -22,19 +25,32 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
+  void updateCart(ProductModel product) {
+    if (cartController.contains(product)) {
+      cartController.removeProduct(
+        CartItem(product),
+      );
+    } else {
+      cartController.addProduct(product);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        title: Text("Shopping page"),
         actions: [
           IconButton(
               onPressed: () {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => CartPage(
-                              controller: cartController,
-                            )));
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CartPage(
+                      controller: cartController,
+                    ),
+                  ),
+                );
               },
               icon: Stack(
                 children: [
@@ -43,40 +59,84 @@ class _HomePageState extends State<HomePage> {
                     size: 30,
                   ),
                   Align(
-                    alignment: Alignment.topLeft,
-                    child: StateBuilder<List<ProductModel>>(
-                        builder: (_, state) => CircleAvatar(
-                              radius: 9,
-                              child: Text(
-                                state.length.toString(),
-                                style: TextStyle(fontSize: 8),
-                              ),
-                            ),
-                        controller: cartController),
+                    alignment: Alignment.bottomRight,
+                    child: CircleAvatar(
+                      radius: 9,
+                      child: Observer(
+                        builder: (_) => Text(
+                          cartController.itemsCount.toString(),
+                          style: TextStyle(fontSize: 8),
+                        ),
+                      ),
+                    ),
                   )
                 ],
               ))
         ],
       ),
-      body: StateBuilder<List<ProductModel>>(
-        controller: controller,
-        builder: (_, state) {
-          if (state.isEmpty) {
+      body: Observer(
+        builder: (_) {
+          if (controller.appStatus == AppStatus.loading) {
             return Center(
               child: CircularProgressIndicator(),
             );
-          } else {
+          } else if (controller.appStatus == AppStatus.success) {
             return ListView.builder(
-                itemCount: state.length,
-                itemBuilder: (_, index) => ListTile(
-                      title: Text(state[index].name),
-                      trailing: Text(state[index].price.toString()),
-                      onTap: () {
-                        cartController.addItem(state[index]);
-                      },
-                    ));
+                itemCount: controller.products.length,
+                itemBuilder: (_, index) {
+                  final product = controller.products[index];
+                  return ProductTile(
+                    title: Text(controller.products[index].name),
+                    price: Text(
+                      controller.products[index].price.reais(),
+                    ),
+                    value: cartController.contains(product) ? true : false,
+                    onChanged: (value) {
+                      setState(() {
+                        cartController.toggleCart();
+                      });
+                      updateCart(product);
+                    },
+                  );
+                });
+          } else if (controller.appStatus == AppStatus.empty) {
+            return EmptyState();
+          } else if (controller.appStatus == AppStatus.error) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(
+                    "Houve um problema",
+                    style: Theme.of(context)
+                        .textTheme
+                        .headline6!
+                        .apply(color: Colors.red),
+                  ),
+                  Text(
+                    controller.errorMessage.isNotEmpty
+                        ? controller.errorMessage
+                        : controller.appStatus.message(),
+                  ),
+                ],
+              ),
+            );
           }
+          return EmptyState();
         },
+      ),
+    );
+  }
+}
+
+class EmptyState extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        "Produtos indisponíveis no momento!",
+        style: Theme.of(context).textTheme.headline6,
       ),
     );
   }

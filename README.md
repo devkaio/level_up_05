@@ -1,16 +1,24 @@
-# carrinho_de_compras
 
-A new Flutter project.
+# #LevelUP5 | Raro Academy  
+  
+## MyCart  
+Shopping cart built with Flutter in the Raro Academy Training.  
 
-## Getting Started
+## Result  
+<p float="left">
+  <img src="screenshots/app.gif" width="300" />
+  <img src="screenshots/screenshot_2.png" width="250" />
+  <img src="screenshots/screenshot_3.png" width="250" />
+  <img src="screenshots/screenshot_2.png" width="250" />
+</<p>>  
 
-This project is a starting point for a Flutter application.
+## Screens  
+- Shopping page
+- Cart page
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Dependencies
+- mobx: ^2.0.1
+- flutter_mobx: ^2.0.0
+- build_runner: ^2.0.6
+- mobx_codegen: ^2.0.1+3
+  
